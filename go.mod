@@ -1,4 +1,4 @@
-module github.com/yourusername/go-auth-middleware
+module github.com/baditaflorin/go-auth-middleware
 
 go 1.20
 
