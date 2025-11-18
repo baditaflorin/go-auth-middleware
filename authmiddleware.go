@@ -1,5 +1,28 @@
-// File: authmiddleware.go
-
+// Package authmiddleware provides authentication middleware for Gin framework.
+//
+// DEPRECATED: This file is maintained for backward compatibility only.
+// New code should use: github.com/baditaflorin/go-auth-middleware/pkg/authmiddleware
+//
+// The new implementation provides:
+// - Environment-driven configuration
+// - Security hardening (input validation, rate limiting, circuit breaker)
+// - Resilience features (retry, timeouts)
+// - Comprehensive testing
+// - Structured logging and metrics
+//
+// Migration guide:
+//
+//	Old:
+//	  am := authmiddleware.New(authmiddleware.Config{
+//	      AuthServiceURL: "http://localhost:8080",
+//	  })
+//	  router.Use(am.Middleware())
+//
+//	New:
+//	  import "github.com/baditaflorin/go-auth-middleware/pkg/authmiddleware"
+//	  am, _ := authmiddleware.NewFromEnv()
+//	  router.Use(am.Handler())
+//
 package authmiddleware
 
 import (
@@ -11,6 +34,7 @@ import (
 )
 
 // Config holds the configuration for the AuthMiddleware
+// DEPRECATED: Use pkg/authmiddleware.Config instead
 type Config struct {
 	AuthServiceURL   string
 	ValidateEndpoint string
@@ -20,6 +44,7 @@ type Config struct {
 }
 
 // DefaultConfig provides default configuration values
+// DEPRECATED: Use pkg/authmiddleware.DefaultConfig() instead
 var DefaultConfig = Config{
 	ValidateEndpoint: "/validate",
 	TokenPrefix:      "Bearer ",
@@ -28,11 +53,13 @@ var DefaultConfig = Config{
 }
 
 // AuthMiddleware provides a Gin middleware for token-based authentication.
+// DEPRECATED: Use pkg/authmiddleware.AuthMiddleware instead
 type AuthMiddleware struct {
 	config Config
 }
 
 // New creates a new instance of AuthMiddleware
+// DEPRECATED: Use pkg/authmiddleware.New() or NewFromEnv() instead
 func New(config Config) *AuthMiddleware {
 	// Use default values for any unspecified fields
 	if config.ValidateEndpoint == "" {
@@ -53,6 +80,7 @@ func New(config Config) *AuthMiddleware {
 }
 
 // Middleware returns a Gin HandlerFunc that can be used as middleware
+// DEPRECATED: Use Handler() method from pkg/authmiddleware instead
 func (am *AuthMiddleware) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader(am.config.TokenHeader)

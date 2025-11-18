@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Mock authentication service
+  mock-auth:
+    build:
+      context: .
+      dockerfile: Dockerfile.mock
+    container_name: go-auth-mock
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - GIN_MODE=release
+    networks:
+      - auth-network
+    restart: unless-stopped
+
+  # Example application using the middleware
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-auth-app
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - AUTH_SERVICE_URL=http://mock-auth:8081
+      - AUTH_VALIDATE_ENDPOINT=/validate
+      - AUTH_TOKEN_HEADER=Authorization
+      - AUTH_TOKEN_PREFIX=Bearer
+      - AUTH_TIMEOUT=10s
+      - AUTH_MAX_RETRIES=3
+      - AUTH_RATE_LIMIT_ENABLED=true
+      - AUTH_RATE_LIMIT_RPS=100
+      - AUTH_LOG_LEVEL=info
+      - AUTH_LOG_FORMAT=json
+      - GIN_MODE=release
+    depends_on:
+      - mock-auth
+    networks:
+      - auth-network
+    restart: unless-stopped
+
+  # GUI test harness
+  gui:
+    build:
+      context: .
+      dockerfile: Dockerfile.gui
+    container_name: go-auth-gui
+    ports:
+      - "3000:3000"
+    environment:
+      - GUI_PORT=3000
+      - AUTH_SERVICE_URL=http://mock-auth:8081
+      - AUTH_VALIDATE_ENDPOINT=/validate
+      - GIN_MODE=release
+    depends_on:
+      - mock-auth
+    networks:
+      - auth-network
+    restart: unless-stopped
+
+networks:
+  auth-network:
+    driver: bridge
